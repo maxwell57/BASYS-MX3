@@ -11,6 +11,11 @@
 #include <sys/attribs.h>
 #include <time.h>
 
+/* personnal libraries*/
+#include "led.h"
+#include "switches.h"
+#include "segments_display.h"
+
 
 #pragma config JTAGEN = OFF     
 #pragma config FWDTEN = OFF      
@@ -26,131 +31,88 @@
 #pragma config FPLLMUL =	MUL_20
 #pragma config FPLLODIV =	DIV_1
 
+enum state{etat1, etat2, etat3};
+
 void binary_convert(int dest [], int src);
+
+void separate_digits(int ret[], int number);
+
+
+inline int get_number(void){
+    return SWITCH0 
+        + (SWITCH1<<1) 
+        + (SWITCH2<<2) 
+        + (SWITCH3<<3)
+        + (SWITCH4<<4)
+        + (SWITCH5<<5)
+        + (SWITCH6<<6)
+        + (SWITCH7<<7);
+}
+
+int MyStateMachine(int state);
+
+inline void light_leds(void){
+    LED0(SWITCH0);
+    LED1(SWITCH1);
+    LED2(SWITCH2);
+    LED3(SWITCH3);
+    LED4(SWITCH4);
+    LED5(SWITCH5);
+    LED6(SWITCH6);
+    LED7(SWITCH7);
+}
+
+
 
 int main(int argc, char** argv)
 {
-    //srand(time(NULL));
-    srand(42);
-    int cmp = 1;
-    while(cmp){
-        cmp++;
-        //int target = rand()%256;
-        int target = 42;
-        int bin_target[8];
-        binary_convert(bin_target,target);
-        
-        TRISAbits.TRISA0 = 0;
-        TRISAbits.TRISA1 = 0;
-        TRISAbits.TRISA2 = 0;
-        TRISAbits.TRISA3 = 0;
-        TRISAbits.TRISA4 = 0;
-        TRISAbits.TRISA5 = 0;
-        TRISAbits.TRISA6 = 0;
-        TRISAbits.TRISA7 = 0;
+    led_initialisation();
+    switch_initialisation();
+    rgb_initialisation();
+    segments_display_initialisation();
+    
+    /* buttons initialisation*/
+    TRISFbits.TRISF0 = 1;
+    TRISAbits.TRISA15 = 1;
+    TRISBbits.TRISB8 = 1;
+    ANSELBbits.ANSB8 = 0;
+    int pushed_L = 0;
+    int d =0;
+    int state = etat1;
+    int number, digits[4], accu, current;
+    while(1){
        
+        rgb_extinction();
         
-        /* RGB Led*/
-        /*TRISDbits.TRISD2 = 0;
-        TRISDbits.TRISD3 = 0;
-        TRISDbits.TRISD12 = 0;
-        LATDbits.LATD2 = 0;
-        LATDbits.LATD3 = 0;
-        LATDbits.LATD12 = 0;*/
-        
-        /* 7 Segments Display*//*
-        TRISBbits.TRISB12 = 0;       //AN0
-        ANSELBbits.ANSB12 = 0;
-        LATBbits.LATB12 = 0;
-        
-        TRISAbits.TRISA14 = 0;   //CB
-        LATAbits.LATA14 = 0;
-        
-        TRISDbits.TRISD6 = 0;      //CC
-        LATDbits.LATD6 = 0;        //position allumée = 0
-        
-        TRISGbits.TRISG12 = 0;      //CA
-        LATGbits.LATG12 = 0;
-        
-        TRISGbits.TRISG13 = 0;      //CD
-        LATGbits.LATG13 = 0;
-        
-        TRISGbits.TRISG14 = 0;      //DP
-        LATGbits.LATG14 = 0;
-        
-        TRISGbits.TRISG15 = 0;      //CE
-        LATGbits.LATG15 = 0;
-        
-        TRISDbits.TRISD7 = 0;      //CF
-        LATDbits.LATD7 = 0;  
-        
-        TRISDbits.TRISD13 = 0;      //CG
-        LATDbits.LATD13 = 0;  
-        
-        
-        TRISBbits.TRISB13 = 0;       //AN1
-        ANSELBbits.ANSB13 = 0;
-        LATBbits.LATB13 = 0;
-        
-        TRISAbits.TRISA9 = 0;       //AN2
-        ANSELAbits.ANSA9 = 0;
-        LATAbits.LATA9 = 0;
-        
-        
-        TRISAbits.TRISA10 = 0;       //AN3
-        ANSELAbits.ANSA10 = 0;
-        LATAbits.LATA10 = 0;
-        */
-        if(cmp%4==1){
-            TRISBbits.TRISB12 = 0;
-            ANSELBbits.ANSB12 = 0;
-            LATBbits.LATB12 = 0;
-            
-            TRISBbits.TRISB13 = 0;
-            ANSELBbits.ANSB13 = 0;
-            LATBbits.LATB13 = 1;
-            
-            TRISGbits.TRISG15 = 0;      
-            LATGbits.LATG15 = 0;
-            
-            TRISGbits.TRISG13 = 0;      
-            LATGbits.LATG13 = 1;
-        
-            TRISDbits.TRISD7 = 0;      
-            LATDbits.LATD7 = 0; 
-            
+        number = get_number();
+        if(PORTAbits.RA15==1){ //is button D pushed ?
+            current = accu;
         }
-        if(cmp%4==2){
-            TRISBbits.TRISB13 = 0;
-            ANSELBbits.ANSB13 = 0;
-            LATBbits.LATB13 = 0;
-            
-            TRISBbits.TRISB12 = 0;
-            ANSELBbits.ANSB12 = 0;
-            LATBbits.LATB12 = 1;
-            
-            TRISGbits.TRISG15 = 0;      
-            LATGbits.LATG15 = 1;
-            
-            TRISGbits.TRISG13 = 0;      
-            LATGbits.LATG13 = 0;
+        else current = number;
         
-            TRISDbits.TRISD7 = 0;      
-            LATDbits.LATD7 = 0;
-            
+        separate_digits(digits,current);
+        set_number_position(d,digits[d]);
+        d++;
+        if(d==4) d=0;
+        if(PORTFbits.RF0==1){ //is button C pushed ?
+            accu = number;
+            light_green();
         }
-                
-        LATAbits.LATA0 = bin_target[0];
-        LATAbits.LATA1 = bin_target[1];
-        LATAbits.LATA2 = bin_target[2];
-        LATAbits.LATA3 = bin_target[3];
-        LATAbits.LATA4 = bin_target[4];
-        LATAbits.LATA5 = bin_target[5];
-        LATAbits.LATA6 = bin_target[6];
-        LATAbits.LATA7 = bin_target[7];
+        else if(PORTBbits.RB8==1 && pushed_L==0){
+            accu += number;
+            light_blue();
+            pushed_L=1;
+        }
+        else if(PORTBbits.RB8==0){
+            pushed_L = 0;
+        }
+        //state = MyStateMachine(state);
+        
         
         int i,j,k,l;
-        //for(i=0; i<0xffff; i++);//for(j=0; j<0xffff; j++);// for(k=0; k<0xffff; k++); //for(l=0; l<0xffff; l++) ; //empty loop
+        //for(i=0; i<8; i++) write_led(i,read_switch(i));
+        light_leds();
+        for(i=0; i<0xff; i++);//for(j=0; j<0xffff; j++);// for(k=0; k<0xffff; k++); //for(l=0; l<0xffff; l++) ; //empty loop
         
     }
    
@@ -162,5 +124,47 @@ void binary_convert(int dest [], int src){
     for(i=0; i<8; i++){
         dest[i] = src%2;     //dest[i] = src&1;
         src=src/2;          //src>>=1;
+    }
+}
+
+
+int MyStateMachine(int state){
+    switch(state){
+        case etat1 : 
+            LED0(1);
+            LED1(0);
+            LED2(0);
+            if(SWITCH0==1){
+               state = etat2;
+            }
+            break;
+        case etat2 :
+            LED0(0);
+            LED1(1);
+            LED2(0);
+            if(SWITCH1==1){
+                state = etat3;
+            }
+            break;
+        case etat3 :
+            LED0(0);
+            LED1(0);
+            LED2(1);
+            if(SWITCH2==1){
+                state = etat1;
+            }
+            break;
+        default : return -1;
+    }
+    return state;
+}
+
+
+
+void separate_digits(int ret[], int number){
+    int i;
+    for(i=0; i<4; i++){
+        ret[i] = number%10;
+        number /= 10;
     }
 }

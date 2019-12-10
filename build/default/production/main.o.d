@@ -1,2 +1,5 @@
 build/default/production/main.o:  \
-main.c 
+main.c  \
+led.h  \
+switches.h  \
+ segments_display.h 
