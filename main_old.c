@@ -37,26 +37,6 @@ void binary_convert(int dest [], int src);
 
 void separate_digits(int ret[], int number);
 
-void DelayAprox100Us( unsigned int  t100usDelay )
-{
-    int j;
-    while ( 0 < t100usDelay )
-    {
-        t100usDelay--;
-        j = 14;
-        while ( 0 < j )
-        {
-            j--;
-        }   // end while 
-        asm volatile("nop"); // do nothing
-        asm volatile("nop"); // do nothing
-        asm volatile("nop"); // do nothing
-        asm volatile("nop"); // do nothing
-        asm volatile("nop"); // do nothing
-         
-    }   // end while
-}
-
 
 inline int get_number(void){
     return SWITCH0 
@@ -89,9 +69,7 @@ int main(int argc, char** argv)
     led_initialisation();
     switch_initialisation();
     rgb_initialisation();
-    rgb_extinction();
     segments_display_initialisation();
-    stop_anodes();
     
     /* buttons initialisation*/
     TRISFbits.TRISF0 = 1;
@@ -102,36 +80,11 @@ int main(int argc, char** argv)
     int d =0;
     int state = etat1;
     int number, digits[4], accu, current;
-    int flag = 1;
-    TRISBbits.TRISB14 = 0;
-    ANSELBbits.ANSB14 = 0;
-    TRISBbits.TRISB2 = 1;
-    ANSELBbits.ANSB2 = 1;
-    
-    //AD1PCFG = 0xfffb;
-    AD1CON1 = 0x0000;
-    AD1CHS = 0X00020000;
-    AD1CSSL = 0;
-    AD1CON3 = 0X0002;
-    AD1CON2 = 0;
-    AD1CON1SET = 0x8000;
     while(1){
+       
         rgb_extinction();
         
-        
-        AD1CON1SET = 0x0002;
-        //DelayAprox100Us(1);
-        AD1CON1CLR = 0x002;
-        while(!(AD1CON1 & 0x0001)) ;
-        number = ADC1BUF0;
-        RPB14R = 0x0C;
-        //PORTBbits.RB14=number%2;
-        //d++;
-        //if(d>10) d=0;
-        //int i;
-        //for(i=0; i<440; i++);
-        
-        //number = get_number();
+        number = get_number();
         if(PORTAbits.RA15==1){ //is button D pushed ?
             current = accu;
         }
@@ -157,12 +110,9 @@ int main(int argc, char** argv)
         
         
         int i,j,k,l;
-        //for(i=0; i<0xff; i++){
-        //if(d = number%4) PORTBbits.RB14 = 1;
-        //else PORTBbits.RB14 = 0;
-        //}
+        //for(i=0; i<8; i++) write_led(i,read_switch(i));
         light_leds();
-        //for(i=0; i<0xff; i++);//for(j=0; j<0xffff; j++);// for(k=0; k<0xffff; k++); //for(l=0; l<0xffff; l++) ; //empty loop
+        for(i=0; i<0xff; i++);//for(j=0; j<0xffff; j++);// for(k=0; k<0xffff; k++); //for(l=0; l<0xffff; l++) ; //empty loop
         
     }
    
@@ -176,6 +126,7 @@ void binary_convert(int dest [], int src){
         src=src/2;          //src>>=1;
     }
 }
+
 
 int MyStateMachine(int state){
     switch(state){
@@ -207,6 +158,8 @@ int MyStateMachine(int state){
     }
     return state;
 }
+
+
 
 void separate_digits(int ret[], int number){
     int i;
