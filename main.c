@@ -201,7 +201,7 @@ int main(int argc, char** argv)
         AD1CON1CLR = 0x002;
         while(!(AD1CON1 & 0x0001)) ;
         number = ADC1BUF0;
-        if(number>0) PR3 = number*(2*PB_FRQ/256);
+        if(number>1) PR3 = (number*16);//(number/10)*(1*PB_FRQ/256);
         else PR3 = 0;
         //PORTBbits.RB14=number%2;
         //d++;
