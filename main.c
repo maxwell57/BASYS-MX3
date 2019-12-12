@@ -47,7 +47,7 @@ __builtin_enable_interrupts(); }
 //#define macro_disable_interrupts INTDisableInterrupts()
 
 
-int calcul_frequence(i)
+int calcul_frequence(int i)
 { switch(i){ 
 		case 0 : return PB_FRQ/1;     
 		case 1 : return  PB_FRQ/8;   
@@ -109,15 +109,15 @@ inline void light_leds(void){
     LED7(SWITCH7);
 }
 
-void __ISR(_TIMER_1_VECTOR, ipl7) Timer1ISR(void){
-    rgb_extinction();
+/*void __ISR(_TIMER_1_VECTOR, ipl7) Timer1ISR(void){
+    //rgb_extinction();
     static int d=0;
-    if(d==0) light_red();
-    else if(d==1) light_blue();
-    else if(d==2) light_green();
+    //if(d==0) light_red();
+    //else if(d==1) light_blue();
+    //else if(d==2) light_green();
     d = (d+1)%3;
     IFS0bits.T1IF = 0;
-}
+}*/
 
 void __ISR(_TIMER_2_VECTOR,ipl7) sevenSegmentsDisplay(void){
     static int d=0;
@@ -138,7 +138,7 @@ void __ISR(_TIMER_4_VECTOR,ipl7) bipper(void){
     static int c=0;
     if(c) LED0(1);
     else LED0(0);
-    c = (c+1)&1;
+    c = (c+1)%16;
     IFS0bits.T4IF = 0;
 }
 
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
     stop_anodes();
     
     //enable timer 1
-    PR1 = (1*PB_FRQ/256);
+    /*PR1 =(1*PB_FRQ/256);
     TMR1 = 0;
     T1CONbits.TCKPS = 3;
     T1CONbits.TGATE = 0;
@@ -161,7 +161,7 @@ int main(int argc, char** argv)
     IPC1bits.T1IP = 7;
     IPC1bits.T1IS = 3;
     IFS0bits.T1IF = 0;
-    IEC0bits.T1IE = 1;
+    IEC0bits.T1IE = 1;*/
     
     PR2 = 2*PB_FRQ;
     TMR2 = 0;
