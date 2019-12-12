@@ -46,6 +46,18 @@ __builtin_enable_interrupts(); }
 #define macro_disable_interrupts __builtin_disable_interrupts()
 //#define macro_disable_interrupts INTDisableInterrupts()
 
+
+int calcul_frequence(i)
+{ switch(i){ 
+		case 0 : return PB_FRQ/1;     
+		case 1 : return  PB_FRQ/8;   
+		case 2 : return PB_FRQ/64;   
+		case 3 : return PB_FRQ/256; 
+		default : return -1;               
+	}
+}
+
+
 enum state{etat1, etat2, etat3};
 int number;
 
@@ -73,7 +85,6 @@ void DelayAprox100Us( unsigned int  t100usDelay )
     }   // end while
 }
 
-
 inline int get_number(void){
     return SWITCH0 
         + (SWITCH1<<1) 
@@ -97,9 +108,6 @@ inline void light_leds(void){
     LED6(SWITCH6);
     LED7(SWITCH7);
 }
-
-
-
 
 void __ISR(_TIMER_1_VECTOR, ipl7) Timer1ISR(void){
     rgb_extinction();
@@ -125,6 +133,15 @@ void __ISR(_TIMER_3_VECTOR,ipl7) buzzer(void){
     PORTBbits.RB14 = 0;
     IFS0bits.T3IF = 0;
 }
+
+void __ISR(_TIMER_4_VECTOR,ipl7) bipper(void){
+    static int c=0;
+    if(c) LED0(1);
+    else LED0(0);
+    c = (c+1)&1;
+    IFS0bits.T4IF = 0;
+}
+
 int main(int argc, char** argv)
 {
     led_initialisation();
@@ -159,7 +176,7 @@ int main(int argc, char** argv)
     
     //PR3 = 2*PB_FRQ;
     TMR3 = 0;
-    T3CONbits.TCKPS = 1;
+    T3CONbits.TCKPS = 0;
     T3CONbits.TGATE = 0;
     T3CONbits.TCS = 0;
     T3CONbits.ON = 1;
@@ -167,6 +184,21 @@ int main(int argc, char** argv)
     IPC3bits.T3IS = 3;
     IFS0bits.T3IF = 0;
     IEC0bits.T3IE = 1;
+    
+    
+    //enable timer4 for testing purpose
+    //PR4 = 0xfc;//4*PB_FRQ/256;
+    TMR4 = 0;
+    T4CONbits.TCKPS = 3;
+    T4CONbits.TGATE = 0;
+    T4CONbits.TCS = 0;
+    T4CONbits.ON = 1;
+    IPC4bits.T4IP = 7;
+    IPC4bits.T4IS = 3;
+    IFS0bits.T4IF = 0;
+    IEC0bits.T4IE = 1;
+    
+    
     macro_enable_interrupts();
     
     /* buttons initialisation*/
@@ -201,8 +233,13 @@ int main(int argc, char** argv)
         AD1CON1CLR = 0x002;
         while(!(AD1CON1 & 0x0001)) ;
         number = ADC1BUF0;
-        if(number>1) PR3 = (number*16);//(number/10)*(1*PB_FRQ/256);
-        else PR3 = 0;
+        
+        
+        PR3 = 0;
+        if(number>0) PR4 = 2*calcul_frequence(T4CONbits.TCKPS)/number;
+        else PR4 = 0;
+        //if(number>1) PR3 = (number*16);//(number/10)*(1*PB_FRQ/256);
+        //else PR3 = 0;
         //PORTBbits.RB14=number%2;
         //d++;
         //if(d>10) d=0;
@@ -256,7 +293,7 @@ int main(int argc, char** argv)
         //if(d = number%4) PORTBbits.RB14 = 1;
         //else PORTBbits.RB14 = 0;
         //}
-        light_leds();
+        //light_leds();
         //for(i=0; i<0xff; i++);//for(j=0; j<0xffff; j++);// for(k=0; k<0xffff; k++); //for(l=0; l<0xffff; l++) ; //empty loop
         
     }
