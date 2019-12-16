@@ -21,7 +21,7 @@
 #pragma config FWDTEN = OFF      
 
 
-#pragma config FNOSC =	2      // select oscilator externe (quartz at 8MHz)
+#pragma config FNOSC =	2           // select oscilator externe (quartz at 8MHz)
 #pragma config FSOSCEN =	OFF     // Disable secondary oscilator
 #pragma config POSCMOD =	XT      // XT oscilator mode
 #pragma config OSCIOFNC =	ON      //
@@ -142,6 +142,68 @@ void __ISR(_TIMER_4_VECTOR,ipl7) bipper(void){
     IFS0bits.T4IF = 0;
 }
 
+void UART1(void){
+    
+    TRISFbits.TRISF12=0;
+    TRISFbits.TRISF13=1;
+    
+    
+    U1MODEbits.ON =1;   
+    U1MODEbits.SIDL=0;
+    U1MODEbits.IREN =0;
+    U1MODEbits.RTSMD =0;
+    U1MODEbits.UEN =2;
+    U1MODEbits.WAKE=0;
+    U1MODEbits.LPBACK=0;
+    U1MODEbits.ABAUD=0;
+    U1MODEbits.RXINV=0;
+    U1MODEbits.BRGH=1;            
+    U1MODEbits.PDSEL=0;
+    U1MODEbits.STSEL =0;
+    
+    U2MODEbits.ON =1;   
+    U2MODEbits.SIDL=0;
+    U2MODEbits.IREN =0;
+    U2MODEbits.RTSMD =0;
+    U2MODEbits.UEN =2;
+    U2MODEbits.WAKE=0;
+    U2MODEbits.LPBACK=0;
+    U2MODEbits.ABAUD=0;
+    U2MODEbits.RXINV=0;
+    U2MODEbits.BRGH=1;            
+    U2MODEbits.PDSEL=0;
+    U2MODEbits.STSEL =0;
+    
+    U3MODEbits.ON =1;   
+    U3MODEbits.SIDL=0;
+    U3MODEbits.IREN =0;
+    U3MODEbits.RTSMD =0;
+    U3MODEbits.UEN =2;
+    U3MODEbits.WAKE=0;
+    U3MODEbits.LPBACK=0;
+    U3MODEbits.ABAUD=0;
+    U3MODEbits.RXINV=0;
+    U3MODEbits.BRGH=1;            
+    U3MODEbits.PDSEL=0;
+    U3MODEbits.STSEL =0;
+    
+    U4MODEbits.ON =1;   
+    U4MODEbits.SIDL=0;
+    U4MODEbits.IREN =0;
+    U4MODEbits.RTSMD =0;
+    U4MODEbits.UEN =2;
+    U4MODEbits.WAKE=0;
+    U4MODEbits.LPBACK=0;
+    U4MODEbits.ABAUD=0;
+    U4MODEbits.RXINV=0;
+    U4MODEbits.BRGH=1;            
+    U4MODEbits.PDSEL=0;
+    U4MODEbits.STSEL =0;
+    
+    
+    RPF12R = 2;
+    U4RXR = 9 ;
+}
 int main(int argc, char** argv)
 {
     led_initialisation();
@@ -150,6 +212,7 @@ int main(int argc, char** argv)
     rgb_extinction();
     segments_display_initialisation();
     stop_anodes();
+    UART1();
     
     //enable timer 1
     /*PR1 =(1*PB_FRQ/256);
@@ -347,3 +410,5 @@ void separate_digits(int ret[], int number){
         number /= 10;
     }
 }
+
+
