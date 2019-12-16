@@ -182,6 +182,13 @@ void phrase (char* s)
     }
 }
 
+char recup_caractere ()
+{
+    while(U4STAbits.URXDA != 1);
+    char c= U4RXREG ;
+    return c;
+}
+
 
 
 int main(int argc, char** argv)
@@ -195,6 +202,7 @@ int main(int argc, char** argv)
     UART1();
     TRISFbits.TRISF12=0;
     TRISFbits.TRISF13=1;
+    
     
     
     
@@ -277,6 +285,7 @@ int main(int argc, char** argv)
     phrase(tab);
     
     while(1){
+        caractere(recup_caractere ());
         //rgb_extinction();
         //caractere('e');
         AD1CON1SET = 0x0002;
