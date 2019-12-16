@@ -143,67 +143,47 @@ void __ISR(_TIMER_4_VECTOR,ipl7) bipper(void){
 }
 
 void UART1(void){
+
     
-    TRISFbits.TRISF12=0;
-    TRISFbits.TRISF13=1;
+    U4MODEbits.ON = 1;   
+    U4MODEbits.SIDL= 0;
+    U4MODEbits.IREN = 0;
+    U4MODEbits.RTSMD = 0;
+    U4MODEbits.UEN = 0;
+    U4MODEbits.WAKE = 0;
+    U4MODEbits.LPBACK = 0;
+    U4MODEbits.ABAUD = 0;
+    U4MODEbits.RXINV = 0;
+    U4MODEbits.BRGH = 0;            
+    U4MODEbits.PDSEL= 0;
+    U4MODEbits.STSEL = 0;
     
+    U4STAbits.UTXEN = 1;
+    U4STAbits.URXEN = 1;
     
-    U1MODEbits.ON =1;   
-    U1MODEbits.SIDL=0;
-    U1MODEbits.IREN =0;
-    U1MODEbits.RTSMD =0;
-    U1MODEbits.UEN =2;
-    U1MODEbits.WAKE=0;
-    U1MODEbits.LPBACK=0;
-    U1MODEbits.ABAUD=0;
-    U1MODEbits.RXINV=0;
-    U1MODEbits.BRGH=1;            
-    U1MODEbits.PDSEL=0;
-    U1MODEbits.STSEL =0;
+    U4RXR=0b1001;
+    RPF12R=0b0010;
+            
+    U4BRG = 25;
     
-    U2MODEbits.ON =1;   
-    U2MODEbits.SIDL=0;
-    U2MODEbits.IREN =0;
-    U2MODEbits.RTSMD =0;
-    U2MODEbits.UEN =2;
-    U2MODEbits.WAKE=0;
-    U2MODEbits.LPBACK=0;
-    U2MODEbits.ABAUD=0;
-    U2MODEbits.RXINV=0;
-    U2MODEbits.BRGH=1;            
-    U2MODEbits.PDSEL=0;
-    U2MODEbits.STSEL =0;
-    
-    U3MODEbits.ON =1;   
-    U3MODEbits.SIDL=0;
-    U3MODEbits.IREN =0;
-    U3MODEbits.RTSMD =0;
-    U3MODEbits.UEN =2;
-    U3MODEbits.WAKE=0;
-    U3MODEbits.LPBACK=0;
-    U3MODEbits.ABAUD=0;
-    U3MODEbits.RXINV=0;
-    U3MODEbits.BRGH=1;            
-    U3MODEbits.PDSEL=0;
-    U3MODEbits.STSEL =0;
-    
-    U4MODEbits.ON =1;   
-    U4MODEbits.SIDL=0;
-    U4MODEbits.IREN =0;
-    U4MODEbits.RTSMD =0;
-    U4MODEbits.UEN =2;
-    U4MODEbits.WAKE=0;
-    U4MODEbits.LPBACK=0;
-    U4MODEbits.ABAUD=0;
-    U4MODEbits.RXINV=0;
-    U4MODEbits.BRGH=1;            
-    U4MODEbits.PDSEL=0;
-    U4MODEbits.STSEL =0;
-    
-    
-    RPF12R = 2;
-    U4RXR = 9 ;
 }
+
+void caractere (char c)
+{
+    U4TXREG = c;
+}
+
+void phrase (char* s)
+{
+    int i;
+    for(i=0;s[i]!=0;i++){
+    U4TXREG = s[i];
+    if(U4STAbits.UTXBF) while(U4STAbits.TRMT != 1);
+    }
+}
+
+
+
 int main(int argc, char** argv)
 {
     led_initialisation();
@@ -213,6 +193,12 @@ int main(int argc, char** argv)
     segments_display_initialisation();
     stop_anodes();
     UART1();
+    TRISFbits.TRISF12=0;
+    TRISFbits.TRISF13=1;
+    
+    
+    
+    char tab[24]="Denis est malin\n\r";
     
     //enable timer 1
     /*PR1 =(1*PB_FRQ/256);
@@ -287,10 +273,12 @@ int main(int argc, char** argv)
     AD1CON2 = 0;
     AD1CON1SET = 0x8000;
     RPB14R = 0x0C;
+    
+    phrase(tab);
+    
     while(1){
         //rgb_extinction();
-        
-        
+        //caractere('e');
         AD1CON1SET = 0x0002;
         DelayAprox100Us(10);
         AD1CON1CLR = 0x002;
