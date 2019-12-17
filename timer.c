@@ -1,6 +1,6 @@
 #include "timer.h"
 
-void init_timer_16(int position, int prescale, int delay){
+void init_timer(int position, int prescale, int delay){
 	switch(position){
 		case 1: 
 			PR1 = delay;
@@ -54,77 +54,26 @@ void init_timer_16(int position, int prescale, int delay){
 	}
 }
 
-void set_timer_delay(int position, int delay){
-	int prescale,frequence;
-	if(delay<10){
-		delay *= 4;
-		prescale = 0;
-		frequence = PB_FRQ;
-	}
-	else if(delay < 100){
-		delay *= 5;
-		prescale = 3;
-		if(position==1) prescale = 1;
-		frequence = PB_FRQ/8;
-	}
-	else if(delay < 1000){
-		delay *= 25;
-		prescale = 4;
-		frequence = PB_FRQ/16;
-		if(position==1){
-			delay *=50;
-			prescale = 1;
-			frequence = PB_FRQ/8;
-		}
-	}
-	else if(delay < 10000){
-		delay *= 125;
-		prescale = 5;
-		frequence = PB_FRQ/32;
-		if(position==1){
-			delay *=500;
-			prescale = 1;
-			frequence = PB_FRQ/8;
-		}
-	}
-	else if(delay < 100000){
-		delay *= 625;
-		prescale = 6;
-		frequence = PB_FRQ/64;
-		if(position==1){
-			prescale = 2;
-		}
-	}
-	else if(delay < 1000000){
-		delay *= 6250;
-		prescale = 6;
-		frequence = PB_FRQ/64;
-		if(position==1){
-			prescale = 2;
-		}
-	}
-	else{
-		delay *= 15625;
-		prescale = 7;
-		frequence = PB_FRQ/256;
-	}
+void set_timer_us(int position, int  period){
+	int delay, frequence, prescale;
 	switch(position){
 		case 1 :
-			T1CONbits.TCKPS = prescale;
-			PR1 = (delay*frequence)/1000000;
+			if(period<10) {prescale = 0; frequence = PB_FRQ; delay = period*4;}
+			else if(period<10000) {prescale = 1; frequence = PB_FRQ/8; delay = (period*5)/10;}
+			else if(period<1000000) {prescale = 2; frequence = PB_FRQ/64; delay = (period*625)/10000;}
+			else {prescale = 3; frequence = PB_FRQ/256; delay = (period*15625)/1000000;}
+			TIMER1(prescale,delay);
 			break;
-		case 2 :
-			T2CONbits.TCKPS = prescale;
-			PR2 = (delay*frequence)/1000000;
-			break;
-		case 3 :
-			T3CONbits.TCKPS = prescale;
-			PR3 = (delay*frequence)/1000000;
-			break;
-		case 4 :
-			T3CONbits.TCKPS = prescale;
-			PR4 = (delay*frequence)/1000000;
-			break;
-		default : return ;
+		default :
+			if(period<1000){prescale = 2; frequence = PB_FRQ/4; delay=period; }
+			else if(period<10000){prescale = 5; frequence = PB_FRQ/32; delay = (period*125)/1000;}
+			else if(period<1000000){prescale = 6; frequence = PB_FRQ/64; delay = (period*625)/10000;}
+			else{prescale = 7; frequence = PB_FRQ/256; delay = (period*15625)/1000000;}
+			init_timer(position,prescale,delay);
 	}
+}
+
+void set_timer_Hz(int position, float frequence){
+		int period = MILLION/frequence;
+		set_timer_us(position,period);
 }
