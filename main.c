@@ -189,28 +189,56 @@ char recup_caractere ()
     return c;
 }
 
+void ledpwm(int puissance, int R, int G, int B)
+{
+RPD2R=0b1011;
+RPD3R=0b1011;
+RPD12R=0b1011;
+
+OC3CONbits.ON=1;
+OC3CONbits.SIDL=0;
+OC3CONbits.OCTSEL=1;
+OC3CONbits.OCM=6;
+
+OC3RS=R*puissance;   //R
+
+OC4CONbits.ON=1;
+OC4CONbits.SIDL=0;
+OC4CONbits.OCTSEL=1;
+OC4CONbits.OCM=6;  
+
+OC4RS=B*puissance;   //B
+        
+OC5CONbits.ON=1;
+OC5CONbits.SIDL=0;
+OC5CONbits.OCTSEL=1;
+OC5CONbits.OCM=6;
+
+OC5RS=G*puissance;  //G
 
 
+}
+       
 int main(int argc, char** argv)
 {
-    led_initialisation();
-    switch_initialisation();
+    //led_initialisation();
+    //switch_initialisation();
     rgb_initialisation();
-    rgb_extinction();
-    segments_display_initialisation();
-    stop_anodes();
-    UART1();
-    TRISFbits.TRISF12=0;
-    TRISFbits.TRISF13=1;
-    
-    
-    
+    //rgb_extinction();
+    //segments_display_initialisation();
+    //stop_anodes();
+    //UART1();
+    //TRISFbits.TRISF12=0;
+    //TRISFbits.TRISF13=1;
+    ledpwm(10,217,33,200);
+   
+   
     
     char tab[24]="Denis est malin\n\r";
     
     //enable timer 1
-    /*PR1 =(1*PB_FRQ/256);
-    TMR1 = 0;
+    //PR1 =(1*PB_FRQ/256);
+    /*TMR1 = 0;
     T1CONbits.TCKPS = 3;
     T1CONbits.TGATE = 0;
     T1CONbits.TCS = 0;
@@ -220,7 +248,7 @@ int main(int argc, char** argv)
     IFS0bits.T1IF = 0;
     IEC0bits.T1IE = 1;*/
     
-    PR2 = 2*PB_FRQ;
+    //PR2 = 2*PB_FRQ;
     TMR2 = 0;
     T2CONbits.TCKPS = 1;
     T2CONbits.TGATE = 0;
@@ -231,7 +259,7 @@ int main(int argc, char** argv)
     IFS0bits.T2IF = 0;
     IEC0bits.T2IE = 1;
     
-    //PR3 = 2*PB_FRQ;
+    PR3 = 2*PB_FRQ;
     TMR3 = 0;
     T3CONbits.TCKPS = 0;
     T3CONbits.TGATE = 0;
@@ -285,7 +313,7 @@ int main(int argc, char** argv)
     phrase(tab);
     
     while(1){
-        caractere(recup_caractere ());
+        
         //rgb_extinction();
         //caractere('e');
         AD1CON1SET = 0x0002;
@@ -355,7 +383,7 @@ int main(int argc, char** argv)
         //}
         //light_leds();
         //for(i=0; i<0xff; i++);//for(j=0; j<0xffff; j++);// for(k=0; k<0xffff; k++); //for(l=0; l<0xffff; l++) ; //empty loop
-        
+        caractere(recup_caractere ());
     }
    
     return (EXIT_SUCCESS);
