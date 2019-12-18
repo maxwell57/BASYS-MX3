@@ -86,6 +86,6 @@ void set_timer_us(int position, int  period){
 }
 
 void set_timer_Hz(int position, float frequence){
-		int period = MILLION/frequence;
+		int period = MILLION/frequence; //period in microseconds
 		set_timer_us(position,period);
 }
