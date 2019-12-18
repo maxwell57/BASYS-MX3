@@ -50,6 +50,18 @@ void init_timer(int position, int prescale, int delay){
 			IFS0bits.T4IF = 0;
 			IEC0bits.T4IE = 1;
 			break;
+		case 5 :
+			PR5 = delay;
+			TMR5 = 0;
+			T5CONbits.TCKPS = prescale;
+			T5CONbits.TGATA = 0;
+			T5CONbits.TCS = 0;
+			T5CONbist.ON = 1;
+			IPC5bits.T5IP = 7;
+			IPC5bits.T5IS = 3;
+			IFS0bits.T5IF = 0;
+			IEC0bits.T5IE = 1;
+			break;
 		default : return;
 	}
 }
@@ -58,16 +70,16 @@ void set_timer_us(int position, int  period){
 	int delay, frequence, prescale;
 	switch(position){
 		case 1 :
-			if(period<10) {prescale = 0; frequence = PB_FRQ; delay = period*4;}
-			else if(period<10000) {prescale = 1; frequence = PB_FRQ/8; delay = (period*5)/10;}
-			else if(period<1000000) {prescale = 2; frequence = PB_FRQ/64; delay = (period*625)/10000;}
+			if(period<10) {prescale = 0; frequence = PB_FRQ; delay = period*4;} // period less than 10 us
+			else if(period<10000) {prescale = 1; frequence = PB_FRQ/8; delay = (period*5)/10;} // period less than 10 ms
+			else if(period<MILLION) {prescale = 2; frequence = PB_FRQ/64; delay = (period*625)/10000;} // period less than 1 s
 			else {prescale = 3; frequence = PB_FRQ/256; delay = (period*15625)/1000000;}
 			TIMER1(prescale,delay);
 			break;
 		default :
-			if(period<1000){prescale = 2; frequence = PB_FRQ/4; delay=period; }
-			else if(period<10000){prescale = 5; frequence = PB_FRQ/32; delay = (period*125)/1000;}
-			else if(period<1000000){prescale = 6; frequence = PB_FRQ/64; delay = (period*625)/10000;}
+			if(period<1000){prescale = 2; frequence = PB_FRQ/4; delay=period; } // period less than  1 ms
+			else if(period<10000){prescale = 5; frequence = PB_FRQ/32; delay = (period*125)/1000;} // period less than 10 ms
+			else if(period<MILLION){prescale = 6; frequence = PB_FRQ/64; delay = (period*625)/10000;} // period less than 1 s
 			else{prescale = 7; frequence = PB_FRQ/256; delay = (period*15625)/1000000;}
 			init_timer(position,prescale,delay);
 	}
