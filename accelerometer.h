@@ -1,4 +1,4 @@
-#ifnedf ACCELEROMETER_H
+#ifndef ACCELEROMETER_H
 #define ACCELEROMETER_H
 
 #include <xc.h>

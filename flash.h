@@ -1,4 +1,4 @@
-#ifned FLASH_H
+#ifndef FLASH_H
 #define FLASH_H
 
 #include <xc.h>

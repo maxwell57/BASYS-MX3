@@ -15,6 +15,12 @@
 #include "led.h"
 #include "switches.h"
 #include "segments_display.h"
+#include "timer.h"
+#include "pwm.h"
+#include "i2c.h"
+#include "accelerometer.h"
+#include "spi.h"
+#include "flash.h"
 
 
 #pragma config JTAGEN = OFF     
@@ -52,6 +58,13 @@ void binary_convert(int dest [], int src);
 
 void separate_digits(int ret[], int number);
 
+void __ISR(_TIMER_1_VECTOR, ipl7) display_number(void){
+    int digit[4], i=0;
+    separate_digits(digit,number);
+    set_number_position(i,digit[i]);
+    i = (i+1)%4;
+}
+
 void DelayAprox100Us( unsigned int  t100usDelay )
 {
     int j;
@@ -72,7 +85,7 @@ void DelayAprox100Us( unsigned int  t100usDelay )
     }   // end while
 }
 
-inline int get_number(void){
+/*inline int get_number(void){
     return SWITCH0 
         + (SWITCH1<<1) 
         + (SWITCH2<<2) 
@@ -82,10 +95,23 @@ inline int get_number(void){
         + (SWITCH6<<6)
         + (SWITCH7<<7);
 }
-
+*/
        
 int main(int argc, char** argv)
 {
+    unsigned char data[4] = {1,2,3,4};
+    TIMER1HZ(120.0);
+    
+    initSpi();
+    Erase(0x0);
+    Write(0x0,data,4);
+    int i;
+    for(i=0; i<4; i++) data[i] = 0;
+    number = (int)data;
+    DelayAprox100Us(100);
+    Read(0x0,data,4);
+    number = (int)data;
+    DelayAprox100Us(100);
     return (EXIT_SUCCESS);
 }
 
