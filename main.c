@@ -10,6 +10,7 @@
 #include <xc.h>
 #include <sys/attribs.h>
 #include <time.h>
+#include <math.h>
 
 /* personnal libraries*/
 #include "led.h"
@@ -61,7 +62,7 @@ int calcul_frequence(int i)
 enum state{etat1, etat2, etat3};
 int number, buf[6];
 
-void binary_convert(int dest [], int src);
+void binary_convert(int dest[], int src);
 
 void separate_digits(int ret[], int number);
 
@@ -84,7 +85,20 @@ void DelayAprox100Us( unsigned int  t100usDelay )
          
     }   // end while
 }
-
+void niveau_x(void){
+    
+    led_global_extinction();
+    
+    if(buf[0]<-30) LED0(1);
+    else if(buf[0]<-20) LED1(1);
+    else if(buf[0]<-10) LED2(1);
+    else if(buf[0]<0) LED3(1);
+    else if(buf[0]<10) LED4(1);
+    else if(buf[0]<20) LED5(1);
+    else if(buf[0]<30) LED6(1);
+    else LED7(1);
+    
+}
 void niveau_y(void){
     
     led_global_extinction();
@@ -112,6 +126,28 @@ void niveau_z(void){
     else if(buf[4]<30) LED6(1);
     else LED7(1);
 }
+
+void equilibre_x_y(void){
+
+    led_global_extinction();
+    
+     if(fabs(buf[0])<3 && fabs(buf[2])<3){
+     LED0(1);
+     LED1(1);
+     LED2(1);
+     LED3(1);
+     LED4(1);
+     LED5(1);
+     LED6(1);
+     LED7(1);
+     
+    }
+    else if(fabs(buf[2])<10 && fabs(buf[0])<10) {LED3(1);LED4(1);}
+    else if(fabs(buf[2])<20 && fabs(buf[0])<20) {LED2(1);LED5(1);}
+    else if(fabs(buf[2])<40 &&fabs(buf[0])<40) {LED1(1);LED6(1);}
+    else if(fabs(buf[2])<60 && fabs(buf[0])<60) {LED0(1);LED7(1);}
+}
+
 inline int get_number(void){
     return SWITCH0 
         + (SWITCH1<<1) 
@@ -122,8 +158,6 @@ inline int get_number(void){
         + (SWITCH6<<6)
         + (SWITCH7<<7);
 }
-
-int MyStateMachine(int state);
 
 inline void light_leds(void){
     LED0(SWITCH0);
@@ -311,15 +345,25 @@ int accelerometre(void){
     I2C1CONbits.PEN = 1;
     while(I2C1CONbits.PEN);
     number = buf[0];
-    //rgb_extinction();
+    rgb_extinction();
     ledpwm(1,buf[0],buf[2],buf[4]);
     
+    /*
     if (read_switch(0)) niveau_x();
     else if(read_switch(1)) niveau_y();
     else niveau_z();
-    
+    */
+        if (read_switch(1))
+            equilibre_x_y();
+        else if (read_switch(2))
+            niveau_x();
+        else if (read_switch(3))
+            niveau_y();
+        else
+            niveau_z();
     return 0;
 }
+
        
 int main(int argc, char** argv)
 {
@@ -328,6 +372,7 @@ int main(int argc, char** argv)
     else number = 1010;
     switch_initialisation();
     rgb_initialisation();
+    segments_display_initialisation();
     //rgb_extinction();
     //stop_anodes();
     //UART1();
@@ -351,6 +396,7 @@ int main(int argc, char** argv)
     IFS0bits.T1IF = 0;
     IEC0bits.T1IE = 1;*/
     
+    PR2 = 2*PB_FRQ;
     TMR2 = 0;
     T2CONbits.TCKPS = 1;
     T2CONbits.TGATE = 0;
@@ -414,6 +460,8 @@ int main(int argc, char** argv)
     
     
     while(1){
+        if(accelerometre()) number = 1111;
+        DelayAprox100Us(10);
         //rgb_extinction();
         //caractere('e');
         
@@ -464,43 +512,12 @@ int main(int argc, char** argv)
     return (EXIT_SUCCESS);
 }
 
-void binary_convert(int dest [], int src){
+void binary_convert(int dest[], int src){
     int i;
     for(i=0; i<8; i++){
         dest[i] = src%2;     //dest[i] = src&1;
         src=src/2;          //src>>=1;
     }
-}
-
-int MyStateMachine(int state){
-    switch(state){
-        case etat1 : 
-            LED0(1);
-            LED1(0);
-            LED2(0);
-            if(SWITCH0==1){
-               state = etat2;
-            }
-            break;
-        case etat2 :
-            LED0(0);
-            LED1(1);
-            LED2(0);
-            if(SWITCH1==1){
-                state = etat3;
-            }
-            break;
-        case etat3 :
-            LED0(0);
-            LED1(0);
-            LED2(1);
-            if(SWITCH2==1){
-                state = etat1;
-            }
-            break;
-        default : return -1;
-    }
-    return state;
 }
 
 void separate_digits(int ret[], int number){
