@@ -32,7 +32,7 @@ extern "C" {
 
 void init_timer(int position, int prescale, int delay);
 void set_timer_us(int position, int  period);
-void set_timer_Hz(int position, float frequence)
+void set_timer_Hz(int position, float frequence);
 
 #ifdef	__cplusplus
 }

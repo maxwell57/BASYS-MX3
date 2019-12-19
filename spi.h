@@ -12,6 +12,7 @@
 #include <sys/attribs.h>
 //#include "config.h"
 
+#define PB_FRQ 4000000
 
 
 void initSpi(void);

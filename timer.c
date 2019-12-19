@@ -54,9 +54,9 @@ void init_timer(int position, int prescale, int delay){
 			PR5 = delay;
 			TMR5 = 0;
 			T5CONbits.TCKPS = prescale;
-			T5CONbits.TGATA = 0;
+			T5CONbits.TGATE = 0;
 			T5CONbits.TCS = 0;
-			T5CONbist.ON = 1;
+			T5CONbits.ON = 1;
 			IPC5bits.T5IP = 7;
 			IPC5bits.T5IS = 3;
 			IFS0bits.T5IF = 0;

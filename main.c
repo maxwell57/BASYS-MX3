@@ -59,10 +59,13 @@ void binary_convert(int dest [], int src);
 void separate_digits(int ret[], int number);
 
 void __ISR(_TIMER_1_VECTOR, ipl7) display_number(void){
-    int digit[4], i=0;
+    static int i=0;
+    int digit[4]; 
     separate_digits(digit,number);
     set_number_position(i,digit[i]);
+    //LED0(i%2);
     i = (i+1)%4;
+    IFS0bits.T1IF = 0;
 }
 
 void DelayAprox100Us( unsigned int  t100usDelay )
@@ -96,22 +99,47 @@ void DelayAprox100Us( unsigned int  t100usDelay )
         + (SWITCH7<<7);
 }
 */
+
+void led_number(unsigned char val){
+    LED0(val%2);
+    val /= 2;
+    LED1(val%2);
+    val /= 2;
+    LED2(val%2);
+    val /= 2;
+    LED3(val%2);
+    val /= 2;
+    LED4(val%2);
+    val /= 2;
+    LED5(val%2);
+    val /= 2;
+    LED6(val%2);
+    val /= 2;
+    LED7(val%2);
+}
        
 int main(int argc, char** argv)
 {
-    unsigned char data[4] = {1,2,3,4};
-    TIMER1HZ(120.0);
+    segments_display_initialisation();
+    led_initialisation();
+    unsigned char data[4] = {4,3,2,1};
+    
+    TIMER1HZ(240);
+    macro_enable_interrupts();
+    number = data[0] + 10*data[1] + 100*data[2] + 1000*data[3];
     
     initSpi();
-    Erase(0x0);
-    Write(0x0,data,4);
+    Erase(0x01);
+    //DelayAprox100Us(10000);
+    Write(0x01,data,4);
     int i;
     for(i=0; i<4; i++) data[i] = 0;
-    number = (int)data;
-    DelayAprox100Us(100);
-    Read(0x0,data,4);
-    number = (int)data;
-    DelayAprox100Us(100);
+    number = data[0] + 10*data[1] + 100*data[2] + 1000*data[3];
+    
+    Read(0x01,data,4);
+    number = data[0] + 10*data[1] + 100*data[2] + 1000*data[3];
+    led_number(data[0]);
+    while(1) ;
     return (EXIT_SUCCESS);
 }
 

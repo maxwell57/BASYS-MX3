@@ -1,7 +1,13 @@
 #include "flash.h"
 
 int WaitNotBusy(void){
-	while(SPI1STATbits.SPIBUSY);
+    int busy;
+    do{
+        LATFbits.LATF8 = 0;
+        SPI_RawTransferByte(05);
+        busy = SPI_RawTransferByte(0);
+        LATFbits.LATF8 = 1;
+	}while(busy&1);
 	return 0;
 }
 
@@ -24,11 +30,11 @@ int Erase(int adress){
 	return WaitNotBusy();
 }
  int Write(int page_adress, unsigned char data[], int data_size){
-	 WriteEnable();
+	WriteEnable();
 	LATFbits.LATF8 = 0; // Activate SS
 	SPI_RawTransferByte(0x02); //Send program page cmd
 	 /* Send page adress */
-	 SPI_RawTransferByte((page_adress>>16)&0xff); 
+	SPI_RawTransferByte((page_adress>>16)&0xff); 
 	SPI_RawTransferByte((page_adress>>8)&0xff);
 	SPI_RawTransferByte(page_adress&0xff);
 	

@@ -125,6 +125,16 @@ void digit_7_segments_display(int digit){
             LATDbits.LATD13 = 0; //CG
             LATGbits.LATG14 = 1; //DP
             break;
+        case -1 : 
+            LATGbits.LATG12 = 1; //CA
+            LATAbits.LATA14 = 1; //CB
+            LATDbits.LATD6 = 1; //CC
+            LATGbits.LATG13 = 1; //CD
+            LATGbits.LATG15 = 1; //CE
+            LATDbits.LATD7 = 1; //CF
+            LATDbits.LATD13 = 0; //CG
+            LATGbits.LATG14 = 1; //DP
+            break;
         default : break;
     }
 }

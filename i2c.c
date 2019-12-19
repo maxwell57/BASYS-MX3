@@ -1,6 +1,6 @@
 #include "i2c.h" 
 
-int start_i2c(int adress_device, adress_ctrl_register){
+int start_i2c(int adress_device, int adress_ctrl_register){
 	I2C1BRG = 2;
 	I2C1CONbits.ON = 1;
    I2C1CONbits.SEN = 1;
@@ -31,7 +31,7 @@ int read_i2c(int adress_device, int adress_start_register, int number_of_registe
     if(I2C1STATbits.ACKSTAT) return 1; //did you understand me ?
     I2C1CONbits.RSEN = 1;
     while(I2C1CONbits.RSEN) ;//wait 'til finish
-    I2C1TRN = (adress_device<<1)&0b11111111 //Talk to me, slave
+    I2C1TRN = (adress_device<<1)&0b11111111; //Talk to me, slave
     while(I2C1STATbits.TRSTAT); //wait 'til I finish talk
     if(I2C1STATbits.ACKSTAT) return 1; //did you understand me ?
     int i,u;
