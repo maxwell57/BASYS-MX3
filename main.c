@@ -84,19 +84,6 @@ void DelayAprox100Us( unsigned int  t100usDelay )
          
     }   // end while
 }
-void niveau_x(void){
-    
-    led_global_extinction();
-    
-    if(buf[0]<-30) LED0(1);
-    else if(buf[0]<-20) LED1(1);
-    else if(buf[0]<-10) LED2(1);
-    else if(buf[0]<0) LED3(1);
-    else if(buf[0]<10) LED4(1);
-    else if(buf[0]<20) LED5(1);
-    else if(buf[0]<30) LED6(1);
-    else LED7(1);
-}
 
 void niveau_y(void){
     
@@ -231,14 +218,10 @@ char recup_caractere ()
 
 void ledpwm(int puissance, int R, int G, int B)
 {
-RPD2R=0b1011; //connecting led to ocx
 RPD3R=0b1011;
 RPD12R=0b1011;
 
 OC3CONbits.ON=1;
-OC3CONbits.SIDL=0; //Continue in Idle
-OC3CONbits.OCTSEL=1; //set timer 0=TMR2, 1=TMR3
-OC3CONbits.OCM=6; //PWM mode, fault disabled
 
 OC3RS=R*puissance;   //R
 
@@ -346,7 +329,6 @@ int main(int argc, char** argv)
     switch_initialisation();
     rgb_initialisation();
     //rgb_extinction();
-    segments_display_initialisation();
     //stop_anodes();
     //UART1();
     //TRISFbits.TRISF12=0;
@@ -369,7 +351,6 @@ int main(int argc, char** argv)
     IFS0bits.T1IF = 0;
     IEC0bits.T1IE = 1;*/
     
-    PR2 = 2*PB_FRQ;
     TMR2 = 0;
     T2CONbits.TCKPS = 1;
     T2CONbits.TGATE = 0;
@@ -431,24 +412,12 @@ int main(int argc, char** argv)
     AD1CON1SET = 0x8000;
     RPB14R = 0x0C;
     
-    //phrase(tab);
     
-    //else number = 0101;
     while(1){
-        if(accelerometre()) number = 1111;
-        DelayAprox100Us(10);
         //rgb_extinction();
         //caractere('e');
-        //AD1CON1SET = 0x0002;
-        //DelayAprox100Us(10);
-        //AD1CON1CLR = 0x002;
-        //while(!(AD1CON1 & 0x0001)) ;
-        //number = ADC1BUF0;
         
         
-        //PR3 = 0;
-        //if(number>0) PR4 = 2*calcul_frequence(T4CONbits.TCKPS)/number;
-        //else PR4 = 0;
         //if(number>1) PR3 = (number*16);//(number/10)*(1*PB_FRQ/256);
         //else PR3 = 0;
         //PORTBbits.RB14=number%2;
@@ -458,10 +427,6 @@ int main(int argc, char** argv)
         //for(i=0; i<440; i++);
         
         //number = get_number();
-        //if(PORTAbits.RA15==1){ //is button D pushed ?
-        //    current = accu;
-        //}
-        //else current = number;
         
         /*separate_digits(digits,current);
         int d,e; for(d=0; d<4; d++){
@@ -470,22 +435,9 @@ int main(int argc, char** argv)
         }*/
         //d++;
         //if(d==4) d=0;
-        //if(PORTFbits.RF0==1){ //is button C pushed ?
-        //    accu = number;
-        //    light_green();
-        //}
-        //else if(PORTBbits.RB8==1 && pushed_L==0){
-        //    accu += number;
-        //    light_blue();
-        //    pushed_L=1;
-        //}
-        //else if(PORTBbits.RB8==0){
-        //    pushed_L = 0;
-        //}
         //state = MyStateMachine(state);
         
         
-        //int i,j,k,l;
         //PORTBbits.RB14 = PORTBbits.RB2;
         /*for(i=0; i<number; i++) 
             if(i<100) PORTBbits.RB14 = (i%2);
