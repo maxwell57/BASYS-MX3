@@ -1,6 +1,6 @@
 #include "timer.h"
 
-void init_timer(int position, int prescale, int delay){
+void __init_timer(int position, int prescale, int delay){
 	switch(position){
 		case 1: 
 			PR1 = delay;
@@ -69,7 +69,7 @@ void set_timer_us(int position, int  period){
 			else if(period<10000){prescale = 5; frequence = PB_FRQ/32; delay = (period*125)/1000;}
 			else if(period<1000000){prescale = 6; frequence = PB_FRQ/64; delay = (period*625)/10000;}
 			else{prescale = 7; frequence = PB_FRQ/256; delay = (period*15625)/1000000;}
-			init_timer(position,prescale,delay);
+			__init_timer(position,prescale,delay);
 	}
 }
 

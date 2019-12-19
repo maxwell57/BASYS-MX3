@@ -145,7 +145,7 @@ void equilibre_x_y(void){
     else if(fabs(buf[2])<10 && fabs(buf[0])<10) {LED3(1);LED4(1);}
     else if(fabs(buf[2])<20 && fabs(buf[0])<20) {LED2(1);LED5(1);}
     else if(fabs(buf[2])<40 &&fabs(buf[0])<40) {LED1(1);LED6(1);}
-    else if(fabs(buf[2])<60 && fabs(buf[0])<60) {LED0(1);LED7(1);}
+    else if(fabs(buf[2])<60 && fabs(buf[0])<60) {LED0(1);LED7(1); ledpwm(100, 0, 255, 0);}
 }
 
 inline int get_number(void){
@@ -378,11 +378,11 @@ int main(int argc, char** argv)
     //UART1();
     //TRISFbits.TRISF12=0;
     //TRISFbits.TRISF13=1;
-    ledpwm(10,41,223,199);
+    //ledpwm(10,41,223,199);
    
    
     
-    char tab[24]="Denis est malin\n\r";
+    //char tab[24]="Denis est malin\n\r";
     
     //enable timer 1
     //PR1 =(1*PB_FRQ/256);

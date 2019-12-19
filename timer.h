@@ -8,10 +8,10 @@
 #include <sys/attribs.h>
 
 
-#define TIMER1(a,b) init_timer(1,a,b);
-#define TIMER2(a,b) init_timer(2,a,b);
-#define TIMER3(a,b) init_timer(3,a,b);
-#define TIMER4(a,b) init_timer(4,a,b);
+#define TIMER1(a,b) __init_timer(1,a,b);
+#define TIMER2(a,b) __init_timer(2,a,b);
+#define TIMER3(a,b) __init_timer(3,a,b);
+#define TIMER4(a,b) __init_timer(4,a,b);
 
 #define TIMER1US(period) set_timer_us(1,period);
 #define TIMER2US(period) set_timer_us(2,period);
@@ -27,9 +27,9 @@
 extern "C" {
 #endif
 
-void init_timer(int position, int prescale, int delay);
+void __init_timer(int position, int prescale, int delay);
 void set_timer_us(int position, int  period);
-void set_timer_Hz(int position, float frequence)
+void set_timer_Hz(int position, float frequence);
 
 #ifdef	__cplusplus
 }
