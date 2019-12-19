@@ -47,9 +47,9 @@ int Read(int page_adress, unsigned char data[], int data_size){
 	  /* Send page adress */
 	 SPI_RawTransferByte((page_adress>>16)&0xff); 
 	SPI_RawTransferByte((page_adress>>8)&0xff);
-	data[0] = SPI_RawTransferByte(page_adress&0xff);
+	SPI_RawTransferByte(page_adress&0xff);
 	int i;
-	for(i=1; i<data_size; i++) data[i] = SPI_RawTransferByte(0);
+	for(i=0; i<data_size; i++) data[i] = SPI_RawTransferByte(0);
 	
 	LATFbits.LATF8 = 1; // Desactivate SS
 	return WaitNotBusy();
