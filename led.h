@@ -11,6 +11,8 @@
 #include <xc.h>
 #include <sys/attribs.h>
 
+#include "pwm.h"
+
 #define LED0(a) write_led(0,a)
 #define LED1(a) write_led(1,a)
 #define LED2(a) write_led(2,a)
@@ -44,6 +46,8 @@ extern "C" {
     void light_green(void);
     void light_blue(void);
 
+	void init_rgb_pwm(int timer);
+	void rgb_pwm(int puissance, int r, int g, int b);
 
 #ifdef	__cplusplus
 }
