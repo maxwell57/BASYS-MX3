@@ -59,7 +59,7 @@ int calcul_frequence(int i)
 
 
 enum state{etat1, etat2, etat3};
-int number;
+int number, buf[6];
 
 void binary_convert(int dest [], int src);
 
@@ -84,7 +84,47 @@ void DelayAprox100Us( unsigned int  t100usDelay )
          
     }   // end while
 }
+void niveau_x(void){
+    
+    led_global_extinction();
+    
+    if(buf[0]<-30) LED0(1);
+    else if(buf[0]<-20) LED1(1);
+    else if(buf[0]<-10) LED2(1);
+    else if(buf[0]<0) LED3(1);
+    else if(buf[0]<10) LED4(1);
+    else if(buf[0]<20) LED5(1);
+    else if(buf[0]<30) LED6(1);
+    else LED7(1);
+}
 
+void niveau_y(void){
+    
+    led_global_extinction();
+    
+    if(buf[2]<-30) LED0(1);
+    else if(buf[2]<-20) LED1(1);
+    else if(buf[2]<-10) LED2(1);
+    else if(buf[2]<0) LED3(1);
+    else if(buf[2]<10) LED4(1);
+    else if(buf[2]<20) LED5(1);
+    else if(buf[2]<30) LED6(1);
+    else LED7(1);
+}
+
+void niveau_z(void){
+    
+    led_global_extinction();
+    
+    if(buf[2]<-30) LED0(1);
+    else if(buf[4]<-20) LED1(1);
+    else if(buf[4]<-10) LED2(1);
+    else if(buf[4]<0) LED3(1);
+    else if(buf[4]<10) LED4(1);
+    else if(buf[4]<20) LED5(1);
+    else if(buf[4]<30) LED6(1);
+    else LED7(1);
+}
 inline int get_number(void){
     return SWITCH0 
         + (SWITCH1<<1) 
@@ -191,14 +231,14 @@ char recup_caractere ()
 
 void ledpwm(int puissance, int R, int G, int B)
 {
-RPD2R=0b1011;
+RPD2R=0b1011; //connecting led to ocx
 RPD3R=0b1011;
 RPD12R=0b1011;
 
 OC3CONbits.ON=1;
-OC3CONbits.SIDL=0;
-OC3CONbits.OCTSEL=1;
-OC3CONbits.OCM=6;
+OC3CONbits.SIDL=0; //Continue in Idle
+OC3CONbits.OCTSEL=1; //set timer 0=TMR2, 1=TMR3
+OC3CONbits.OCM=6; //PWM mode, fault disabled
 
 OC3RS=R*puissance;   //R
 
@@ -218,19 +258,100 @@ OC5RS=G*puissance;  //G
 
 
 }
+int start_accelerometre(void){
+    TRISGbits.TRISG3 = 0;
+    TRISGbits.TRISG2 = 0;
+    
+    I2C1BRG = 2;
+    I2C1CONbits.ON = 1;
+    I2C1CONbits.SEN = 1;
+    while(I2C1CONbits.SEN) ; //empty loop
+    I2C1TRN = 0X3A; //you, the accelerometer, listen to me !
+    while(I2C1STATbits.TRSTAT); //wait 'til I finish talk 
+    if(I2C1STATbits.ACKSTAT) return 1; //did you understand me ?
+    I2C1TRN = 0x002a; //address of CTRL_REG1;
+    while(I2C1STATbits.TRSTAT); //wait 'til I finish talk
+    if(I2C1STATbits.ACKSTAT) return 1; //did you understand me ?
+    I2C1TRN = 1; //address of CTRL_REG1;
+    while(I2C1STATbits.TRSTAT); //wait 'til I finish talk
+    if(I2C1STATbits.ACKSTAT) return 1;
+    I2C1CONbits.PEN = 1;
+    while(I2C1CONbits.PEN);
+    return 0;
+}
+int accelerometre(void){
+    //I2C1CONbits.ON;
+    //I2C1STATbits.R_W;
+    //I2C1ADD = 0x1d; // 0x3A in write mode, 0x3B in read mode
+    
+    //single byte read :
+    // 0 : Start condition
+    // 1 : Master write, send register adress
+    // 2 : repeat Start condition
+    // 3 : Master read, and send NAK
+    // 4 : Stop condition
+    
+    //multi-bytes read :
+    // 0 : Start Condition
+    // 1 : Master write, send register adress
+    // 2 : repeat Start condition
+    // 3 : Master read, slave send register adress and increment it, Master send AK
+    // 4 : Master send NAK
+    // 5 : Stop condition
+    
+    //I2C1BRG = 2;
+    //I2C1CONbits.ON = 1;
+    I2C1CONbits.SEN = 1;
+    while(I2C1CONbits.SEN) ; //wait 'til finish sending signal
+    I2C1TRN = 0X3A; //you, the accelerometer, listen to me !
+    while(I2C1STATbits.TRSTAT); //wait 'til I finish talk 
+    if(I2C1STATbits.ACKSTAT) return 1; //did you understand me ?
+    I2C1TRN = 0x01; //address of OUT_X_MSB;
+    while(I2C1STATbits.TRSTAT); //wait 'til I finish talk
+    if(I2C1STATbits.ACKSTAT) return 1; //did you understand me ?
+    I2C1CONbits.RSEN = 1;
+    while(I2C1CONbits.RSEN) ;//wait 'til finish
+    I2C1TRN = 0X3B; //Talk to me, slave
+    while(I2C1STATbits.TRSTAT); //wait 'til I finish talk
+    if(I2C1STATbits.ACKSTAT) return 1; //did you understand me ?
+    int i,u;
+    for(i=0; i<6; i++){
+        I2C1CONbits.RCEN = 1;
+        I2C1CONbits.ACKDT=(i==5)?1:0;
+        while(I2C1CONbits.RCEN);
+        u = (char)I2C1RCV;
+        if((buf[i]-u)*(buf[i]-u)>=4)buf[i] = u;
+        I2C1CONbits.ACKEN = 1;
+        //while(I2C1CONbits.ACKEN) ;
+        
+    }
+    I2C1CONbits.PEN = 1;
+    while(I2C1CONbits.PEN);
+    number = buf[0];
+    //rgb_extinction();
+    ledpwm(1,buf[0],buf[2],buf[4]);
+    
+    if (read_switch(0)) niveau_x();
+    else if(read_switch(1)) niveau_y();
+    else niveau_z();
+    
+    return 0;
+}
        
 int main(int argc, char** argv)
 {
-    //led_initialisation();
-    //switch_initialisation();
+    led_initialisation();
+    if(start_accelerometre()) number = 9999;
+    else number = 1010;
+    switch_initialisation();
     rgb_initialisation();
     //rgb_extinction();
-    //segments_display_initialisation();
+    segments_display_initialisation();
     //stop_anodes();
     //UART1();
     //TRISFbits.TRISF12=0;
     //TRISFbits.TRISF13=1;
-    ledpwm(10,217,33,200);
+    ledpwm(10,41,223,199);
    
    
     
@@ -248,7 +369,7 @@ int main(int argc, char** argv)
     IFS0bits.T1IF = 0;
     IEC0bits.T1IE = 1;*/
     
-    //PR2 = 2*PB_FRQ;
+    PR2 = 2*PB_FRQ;
     TMR2 = 0;
     T2CONbits.TCKPS = 1;
     T2CONbits.TGATE = 0;
@@ -310,22 +431,24 @@ int main(int argc, char** argv)
     AD1CON1SET = 0x8000;
     RPB14R = 0x0C;
     
-    phrase(tab);
+    //phrase(tab);
     
+    //else number = 0101;
     while(1){
-        
+        if(accelerometre()) number = 1111;
+        DelayAprox100Us(10);
         //rgb_extinction();
         //caractere('e');
-        AD1CON1SET = 0x0002;
-        DelayAprox100Us(10);
-        AD1CON1CLR = 0x002;
-        while(!(AD1CON1 & 0x0001)) ;
-        number = ADC1BUF0;
+        //AD1CON1SET = 0x0002;
+        //DelayAprox100Us(10);
+        //AD1CON1CLR = 0x002;
+        //while(!(AD1CON1 & 0x0001)) ;
+        //number = ADC1BUF0;
         
         
-        PR3 = 0;
-        if(number>0) PR4 = 2*calcul_frequence(T4CONbits.TCKPS)/number;
-        else PR4 = 0;
+        //PR3 = 0;
+        //if(number>0) PR4 = 2*calcul_frequence(T4CONbits.TCKPS)/number;
+        //else PR4 = 0;
         //if(number>1) PR3 = (number*16);//(number/10)*(1*PB_FRQ/256);
         //else PR3 = 0;
         //PORTBbits.RB14=number%2;
@@ -335,10 +458,10 @@ int main(int argc, char** argv)
         //for(i=0; i<440; i++);
         
         //number = get_number();
-        if(PORTAbits.RA15==1){ //is button D pushed ?
-            current = accu;
-        }
-        else current = number;
+        //if(PORTAbits.RA15==1){ //is button D pushed ?
+        //    current = accu;
+        //}
+        //else current = number;
         
         /*separate_digits(digits,current);
         int d,e; for(d=0; d<4; d++){
@@ -347,22 +470,22 @@ int main(int argc, char** argv)
         }*/
         //d++;
         //if(d==4) d=0;
-        if(PORTFbits.RF0==1){ //is button C pushed ?
-            accu = number;
-            light_green();
-        }
-        else if(PORTBbits.RB8==1 && pushed_L==0){
-            accu += number;
-            light_blue();
-            pushed_L=1;
-        }
-        else if(PORTBbits.RB8==0){
-            pushed_L = 0;
-        }
+        //if(PORTFbits.RF0==1){ //is button C pushed ?
+        //    accu = number;
+        //    light_green();
+        //}
+        //else if(PORTBbits.RB8==1 && pushed_L==0){
+        //    accu += number;
+        //    light_blue();
+        //    pushed_L=1;
+        //}
+        //else if(PORTBbits.RB8==0){
+        //    pushed_L = 0;
+        //}
         //state = MyStateMachine(state);
         
         
-        int i,j,k,l;
+        //int i,j,k,l;
         //PORTBbits.RB14 = PORTBbits.RB2;
         /*for(i=0; i<number; i++) 
             if(i<100) PORTBbits.RB14 = (i%2);
@@ -383,7 +506,7 @@ int main(int argc, char** argv)
         //}
         //light_leds();
         //for(i=0; i<0xff; i++);//for(j=0; j<0xffff; j++);// for(k=0; k<0xffff; k++); //for(l=0; l<0xffff; l++) ; //empty loop
-        caractere(recup_caractere ());
+        //caractere(recup_caractere ());
     }
    
     return (EXIT_SUCCESS);
@@ -430,9 +553,19 @@ int MyStateMachine(int state){
 
 void separate_digits(int ret[], int number){
     int i;
-    for(i=0; i<4; i++){
-        ret[i] = number%10;
-        number /= 10;
+    if(number>=0){
+        for(i=0; i<4; i++){
+            ret[i] = number%10;
+            number /= 10;
+        }
+    }
+    else{
+        number *=-1;
+        for( i=0; i<3; i++){
+            ret[i] = number%10;
+            number /= 10;
+        }
+        ret[3] = -1;
     }
 }
 
