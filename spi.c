@@ -39,6 +39,6 @@ void SPI_SendOneByteCmd(unsigned char bCmd)
 {
     LATFbits.LATF8 = 0; // Activate SS
     SPI_RawTransferByte(bCmd);
-    LATFbits.LATF8 = 1; // Deactivate SS
+    LATFbits.LATF8 = 1; // Desactivate SS
 }
 

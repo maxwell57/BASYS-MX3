@@ -9,7 +9,8 @@
 #define	SPI_H
 
 #include <xc.h>
-#include "config.h"
+#include <sys/attribs.h>
+//#include "config.h"
 
 
 
