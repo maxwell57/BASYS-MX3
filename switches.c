@@ -1,3 +1,5 @@
+#include <proc/p32mx370f512l.h>
+
 #include "switches.h"
 
 inline void switch_initialisation(void){

@@ -81,7 +81,7 @@ inline void light_green(void){LATDbits.LATD12 = 1;}
 inline void light_blue(void){LATDbits.LATD3 = 1;}
 
 
-void init_rgb_pwm(int timer){
+/*void init_rgb_pwm(int timer){
 	RPD2R=0b1011;  // branche RPD2 (red) sur OC3
 	RPD3R=0b1011; // branche RPD3 (blue) sur sur OC4
 	RPD12R=0b1011;	 // branche RPD12 (green) sur OC5
@@ -96,3 +96,4 @@ void rgb_pwm(int puissance, int r, int g, int b){
 	SET_DUTY4(puissance*b);
 	SET_DUTY5(puissance*g);
 }
+*/
