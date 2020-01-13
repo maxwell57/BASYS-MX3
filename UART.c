@@ -25,12 +25,43 @@ void init_UART(void){
 
 static void write_char(char c){
         U4TXREG = c;
+        if(U4STAbits.UTXBF) while(U4STAbits.TRMT != 1);
 }
 
-static void(char* s){
+static void write_word(char* s){
     int i;
     for(i=0; s[i]!=0; ++i){
         write_char(s[i]);
-        if(U4STAbits.UTXBF) while(U4STAbits.TRMT != 1);
+    }
+}
+
+static void write_text(char* t, int size){
+    int i;
+    for(i=0; i<size; i++){
+        write_char(s[i]);
+    }
+}
+
+static char read_char(void){
+    while(U4STAbits.URXDA != 1);
+    char c = UARXREG;
+    return c;
+}
+
+static void read_word(char* s){
+    int i=0;
+    s[i] = read_char();
+    while(s[i]!=0){
+        i++;
+        s[i] = read_char();
+    }
+}
+
+static void read_text(char* t){
+    int i=0;
+    t[i] = read_char();
+    while(t[i]!=EOF){
+        i++;
+        t[i] = read_char();
     }
 }

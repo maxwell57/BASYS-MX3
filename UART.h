@@ -10,6 +10,7 @@
 
 #include <xc.h>
 #include <sys/attribs.h>
+#define EOF -1
 
 #ifdef	__cplusplus
 extern "C" {
@@ -19,6 +20,10 @@ extern "C" {
     static void write_char(char c);
     static void write_word(char* s);
     static void write_text(char* t, int size);
+    
+    static char read_char(void);
+    static void read_word(char* s);
+    static void read_text(char* t);
 
 
 #ifdef	__cplusplus
