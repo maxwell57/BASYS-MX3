@@ -70,25 +70,7 @@ void __ISR(_TIMER_1_VECTOR, ipl7) display_number(void){
     IFS0bits.T1IF = 0;
 }
 
-void DelayAprox100Us( unsigned int  t100usDelay )
-{
-    int j;
-    while ( 0 < t100usDelay )
-    {
-        t100usDelay--;
-        j = 14;
-        while ( 0 < j )
-        {
-            j--;
-        }   // end while 
-        asm volatile("nop"); // do nothing
-        asm volatile("nop"); // do nothing
-        asm volatile("nop"); // do nothing
-        asm volatile("nop"); // do nothing
-        asm volatile("nop"); // do nothing
-         
-    }   // end while
-}
+
 
 /*inline int get_number(void){
     return SWITCH0 
@@ -123,7 +105,7 @@ void led_number(unsigned char val){
 int main(int argc, char** argv)
 {
     LCD_Init();
-    LCD_WriteStringAtPos("Demo",0,0);
+    LCD_WriteStringAtPos("Hello",0,1);
     while(1) ;
     
     return (EXIT_SUCCESS);
