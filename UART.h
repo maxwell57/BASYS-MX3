@@ -18,12 +18,12 @@ extern "C" {
 
     void init_UART(void);
     static void write_char(char c);
-    static void write_word(char* s);
-    static void write_text(char* t, int size);
+    void write_word(char* s);
+    void write_text(char* t, int size);
     
     static char read_char(void);
-    static void read_word(char* s);
-    static void read_text(char* t);
+    void read_word(char* s);
+    void read_text(char* t);
 
 
 #ifdef	__cplusplus

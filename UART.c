@@ -28,27 +28,27 @@ static void write_char(char c){
         if(U4STAbits.UTXBF) while(U4STAbits.TRMT != 1);
 }
 
-static void write_word(char* s){
+void write_word(char* s){
     int i;
     for(i=0; s[i]!=0; ++i){
         write_char(s[i]);
     }
 }
 
-static void write_text(char* t, int size){
+void write_text(char* t, int size){
     int i;
     for(i=0; i<size; i++){
-        write_char(s[i]);
+        write_char(t[i]);
     }
 }
 
 static char read_char(void){
     while(U4STAbits.URXDA != 1);
-    char c = UARXREG;
+    char c = U4RXREG;
     return c;
 }
 
-static void read_word(char* s){
+void read_word(char* s){
     int i=0;
     s[i] = read_char();
     while(s[i]!=0){
@@ -57,11 +57,19 @@ static void read_word(char* s){
     }
 }
 
-static void read_text(char* t){
+void read_text(char* t){
+    LATAbits.LATA0 = 1;
     int i=0;
     t[i] = read_char();
-    while(t[i]!=EOF){
+    LATAbits.LATA1 = 1;
+    int sortie = 0;
+    int n=0;
+    while(!sortie){
         i++;
         t[i] = read_char();
+        if(t[i] == '0') n++;
+        else n = 0;
+        if(n==4) sortie = 1;
     }
+    LATAbits.LATA2 = 1;
 }

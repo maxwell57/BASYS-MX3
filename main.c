@@ -21,6 +21,7 @@
 #include "accelerometer.h"
 #include "spi.h"
 #include "flash.h"
+#include "UART.h"
 
 
 #pragma config JTAGEN = OFF     
@@ -120,26 +121,19 @@ void led_number(unsigned char val){
        
 int main(int argc, char** argv)
 {
-    segments_display_initialisation();
+    char s[100] = {0};
+    init_UART();
     led_initialisation();
-    unsigned char data[4] = {4,3,2,1};
+    led_global_extinction();
     
-    TIMER1HZ(240);
-    macro_enable_interrupts();
-    number = data[0] + 10*data[1] + 100*data[2] + 1000*data[3];
+    read_text(s);
+    if(s[0]){
+        LED3(1);
+        write_word(s);
+    }
     
-    initSpi();
-    Erase(0x01);
-    //DelayAprox100Us(10000);
-    Write(0x01,data,4);
-    int i;
-    for(i=0; i<4; i++) data[i] = 0;
-    number = data[0] + 10*data[1] + 100*data[2] + 1000*data[3];
-    
-    Read(0x01,data,4);
-    number = data[0] + 10*data[1] + 100*data[2] + 1000*data[3];
-    led_number(data[0]);
     while(1) ;
+    
     return (EXIT_SUCCESS);
 }
 
