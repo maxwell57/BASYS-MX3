@@ -22,6 +22,7 @@
 #include "spi.h"
 #include "flash.h"
 #include "UART.h"
+#include "lcd.h"
 
 
 #pragma config JTAGEN = OFF     
@@ -121,17 +122,8 @@ void led_number(unsigned char val){
        
 int main(int argc, char** argv)
 {
-    char s[100] = {0};
-    init_UART();
-    led_initialisation();
-    led_global_extinction();
-    
-    read_text(s);
-    if(s[0]){
-        LED3(1);
-        write_word(s);
-    }
-    
+    LCD_Init();
+    LCD_WriteStringAtPos("Demo",0,0);
     while(1) ;
     
     return (EXIT_SUCCESS);
